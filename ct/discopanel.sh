@@ -47,13 +47,21 @@ function update_script() {
     msg_ok "Created Backup"
 
     CLEAN_INSTALL=1 fetch_and_deploy_gh_release "discopanel" "nickheyer/discopanel" "tarball" "latest" "/opt/discopanel"
+    CHECKUPDATE_RELEASE=$(cat "$HOME/.discopanel")
+    install -d /etc/systemd/system/discopanel.service.d
+    printf '%s\n' \
+      '[Service]' \
+      "Environment=\"APPVERSION=$CHECKUPDATE_RELEASE\"" \
+      > /etc/systemd/system/discopanel.service.d/10-appversion.conf
+
+    systemctl daemon-reload
 
     msg_info "Setting up DiscoPanel"
     cd /opt/discopanel 
     $STD make gen
     cd /opt/discopanel/web/discopanel 
     $STD npm install
-    $STD npm run build
+    APPVERSION="$CHECKUPDATE_RELEASE" $STD npm run build
     cd /opt/discopanel 
     $STD go build -o discopanel cmd/discopanel/main.go
     msg_ok "Setup DiscoPanel"

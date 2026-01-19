@@ -19,6 +19,7 @@ msg_ok "Installed Dependencies"
 NODE_VERSION="22" setup_nodejs
 setup_go
 fetch_and_deploy_gh_release "discopanel" "nickheyer/discopanel" "tarball" "latest" "/opt/discopanel"
+CHECKUPDATE_RELEASE=$(cat "$HOME/.discopanel")
 setup_docker
 
 msg_info "Setting up DiscoPanel"
@@ -26,12 +27,24 @@ cd /opt/discopanel
 $STD make gen
 cd /opt/discopanel/web/discopanel
 $STD npm install
-$STD npm run build
+
+APPVERSION="$CHECKUPDATE_RELEASE" $STD npm run build
+
 cd /opt/discopanel
 $STD go build -o discopanel cmd/discopanel/main.go
+cp config.example.yaml config.yaml
 msg_ok "Setup DiscoPanel"
 
 msg_info "Creating Service"
+
+install -d /etc/systemd/system/discopanel.service.d
+cat > /etc/systemd/system/discopanel.service.d/10-appversion.conf <<EOF
+[Service]
+Environment="APPVERSION=$CHECKUPDATE_RELEASE"
+EOF
+
+systemctl daemon-reload
+
 cat <<EOF >/etc/systemd/system/discopanel.service
 [Unit]
 Description=DiscoPanel Service
