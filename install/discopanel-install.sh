@@ -28,7 +28,7 @@ $STD make gen
 cd /opt/discopanel/web/discopanel
 $STD npm install
 
-APPVERSION="$CHECKUPDATE_RELEASE" $STD npm run build
+APP_VERSION="$CHECKUPDATE_RELEASE" $STD npm run build
 
 cd /opt/discopanel
 $STD go build -o discopanel cmd/discopanel/main.go
@@ -40,7 +40,7 @@ msg_info "Creating Service"
 install -d /etc/systemd/system/discopanel.service.d
 cat > /etc/systemd/system/discopanel.service.d/10-appversion.conf <<EOF
 [Service]
-Environment="APPVERSION=$CHECKUPDATE_RELEASE"
+Environment="APP_VERSION=$CHECKUPDATE_RELEASE"
 EOF
 
 systemctl daemon-reload

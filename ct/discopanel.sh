@@ -51,7 +51,7 @@ function update_script() {
     install -d /etc/systemd/system/discopanel.service.d
     printf '%s\n' \
       '[Service]' \
-      "Environment=\"APPVERSION=$CHECKUPDATE_RELEASE\"" \
+      "Environment=\"APP_VERSION=$CHECKUPDATE_RELEASE\"" \
       > /etc/systemd/system/discopanel.service.d/10-appversion.conf
 
     systemctl daemon-reload
@@ -61,7 +61,7 @@ function update_script() {
     $STD make gen
     cd /opt/discopanel/web/discopanel 
     $STD npm install
-    APPVERSION="$CHECKUPDATE_RELEASE" $STD npm run build
+    APP_VERSION="$CHECKUPDATE_RELEASE" $STD npm run build
     cd /opt/discopanel 
     $STD go build -o discopanel cmd/discopanel/main.go
     msg_ok "Setup DiscoPanel"
